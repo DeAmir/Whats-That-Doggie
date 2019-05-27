@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:async/async.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 Future<void> main() async {
   final cameras = await availableCameras();
@@ -40,6 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _initializeControllerFuture = _controller.initialize();
   }
 
+  void showToast(msg){
+    Fluttertoast.showToast(msg: msg,timeInSecForIos: 5,gravity: ToastGravity.CENTER);
+  }
+
   Future<String> takePicture() async {
     print("taking picture...");
 
@@ -66,8 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       File imageFile = File.fromUri(Uri(path: path));
 
-      var stream = new http.ByteStream(
-          DelegatingStream.typed(imageFile.openRead()));
+      var stream =
+          new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
       // get file length
       var length = await imageFile.length();
 
@@ -90,25 +95,34 @@ class _MyHomePageState extends State<MyHomePage> {
       response.stream.transform(utf8.decoder).listen((value) {
         completer.complete(value.toString());
       });
-    }catch(e){
+    } catch (e) {
       print("Error in predictPicture: ${e}");
       completer.complete('');
     }
     return completer.future;
   }
 
+  void moveScreen(category) {}
+
   void doWork() async {
     String path = await takePicture();
     if (path != null) {
       print("Finding category...");
+      showToast("Detecting picture...");
       String category = await predictPicture(path);
       print("Category: ${category}");
+      showToast(category);
+
+      if (category == '') {
+        print("Error with category prediction");
+      }
+    } else {
+      print("Path is null at doWork");
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _controller.dispose();
   }
