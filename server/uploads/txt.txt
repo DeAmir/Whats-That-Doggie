@@ -1,0 +1,2 @@
+Uploads folder.
+Where images will temporarly be stored.
