@@ -1,0 +1,19 @@
+dependencies: \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Runner/GeneratedPluginRegistrant.m \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Runner/GeneratedPluginRegistrant.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Modules/module.modulemap \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterTexture.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterPlugin.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterMacros.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterEngine.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterDartProject.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterBinaryMessenger.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterViewController.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterPluginAppLifeCycleDelegate.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterPlatformViews.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterHeadlessDartRunner.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterCodecs.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterChannels.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterCallbackCache.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/FlutterAppDelegate.h \
+  /Users/amirdeitch/AndroidStudioProjects/whats_that_doggie/ios/Flutter/Flutter.framework/Headers/Flutter.h
