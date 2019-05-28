@@ -41,12 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _initializeControllerFuture = _controller.initialize();
   }
 
-  void showToast(msg){
-    Fluttertoast.showToast(msg: msg,timeInSecForIos: 5,gravity: ToastGravity.CENTER);
+  void showToast(msg) {
+    Fluttertoast.showToast(
+        msg: msg, timeInSecForIos: 5, gravity: ToastGravity.CENTER);
   }
 
   Future<String> takePicture() async {
     print("taking picture...");
+    var completer = Completer<String>();
 
     try {
       // make sure the controller is initialized
@@ -60,10 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
       await _controller.takePicture(path);
       print("Picture taken and saved at ${path}");
 
-      return path;
+      completer.complete(path);
     } catch (e) {
       print("Error: ${e}");
+      completer.complete('');
     }
+
+    return completer.future;
   }
 
   Future<String> predictPicture(path) async {
@@ -104,17 +109,51 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void moveScreen(category) {}
 
-  void doWork() async {
+  Future<bool> validateImage(path, BuildContext cont) {
+    File img = File.fromUri(Uri(path: path));
+    var completer = Completer<bool>();
+    
+    
+    Widget okButton = FlatButton(
+        onPressed: () {
+          Navigator.pop(cont);
+          completer.complete(true);
+        },
+        child: Text('Ok'));
+    
+    Widget cancelButton = FlatButton(
+        onPressed: () {
+          Navigator.pop(cont);
+          completer.complete(false);
+        },
+        child: Text("Retake image"));
+    
+    AlertDialog alertDialog = AlertDialog(
+      title: Text("Is the image ok?"),
+      content: Image.file(img),
+      actions: <Widget>[okButton, cancelButton],
+    );
+
+    showDialog(
+        context: cont,
+        builder: (BuildContext context) {
+          return alertDialog;
+        });
+
+    return completer.future;
+  }
+
+  void doWork(BuildContext context) async {
     String path = await takePicture();
     if (path != null) {
-      print("Finding category...");
-      showToast("Detecting picture...");
-      String category = await predictPicture(path);
-      print("Category: ${category}");
-      showToast(category);
-
-      if (category == '') {
-        print("Error with category prediction");
+      bool imageOk = await validateImage(path, context);
+      if (imageOk) {
+        showToast("Detecting picture...");
+        String category = await predictPicture(path);
+        showToast(category);
+        if (category == '') {
+          print("Error with category prediction");
+        }
       }
     } else {
       print("Path is null at doWork");
@@ -146,7 +185,9 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: doWork,
+        onPressed: () {
+          doWork(context);
+        },
         child: Icon(Icons.camera),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
