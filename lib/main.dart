@@ -82,25 +82,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
       var stream =
           new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-      // get file length
       var length = await imageFile.length();
 
-      // string to uri
       var uri = Uri.parse("http://10.100.102.16/");
 
-      // create multipart request
       var request = new http.MultipartRequest("POST", uri);
 
-      // multipart that takes file
       var multipartFile = new http.MultipartFile('file', stream, length,
           filename: basename(imageFile.path));
 
-      // add file to multipart
       request.files.add(multipartFile);
 
-      // send
       var response = await request.send();
-      // listen for response
+
       response.stream.transform(utf8.decoder).listen((value) {
         completer.complete(value.toString());
       });
@@ -111,30 +105,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
-  String cleanCategory(String category) {
-    String cat = category;
-    String abc = "abcdefghijklmnopqrstuvwxyz";
-
-    for (int i = 0; i < category.length; i++) {
-      String cchar = category[i];
-
-      if (cchar == "_") {
-        cat = cat.replaceFirst("_", ' ');
-      } else if (!abc.contains(cchar) && cchar != '_') {
-        cat = cat.replaceAll(cchar, '');
-      }
-    }
-    return cat;
-  }
-
-  void moveScreen(category, cont) {
-    category = cleanCategory(category);
+  void moveScreen(category, cont, path) {
     Navigator.push(
         cont,
         MaterialPageRoute(
-            builder: (cont) => CategoryInfo(
-                  category: category,
-                )));
+            builder: (cont) => CategoryInfo(category: category, path: path)));
   }
 
   Future<bool> validateImage(path, BuildContext cont) {
@@ -170,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
-  void showLoader(bool show){
+  void showLoader(bool show) {
     setState(() {
       loading = show;
     });
@@ -187,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
           showToast(
               "Error with category prediction. Maybe internet connectivity issue.");
         } else {
-          moveScreen(category, context);
+          moveScreen(category, context, path);
         }
       }
     } else {
@@ -211,7 +186,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && loading==false) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              loading == false) {
             // when ok display feed with initialized controller
             print("Starting camera preview...");
             return CameraPreview(_controller);
@@ -222,7 +198,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          doWork(context);
+          if (loading == false) {
+            doWork(context);
+          }
         },
         child: Icon(Icons.camera),
       ),
