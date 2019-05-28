@@ -11,6 +11,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'CategoryInfo.dart';
 
+// change this to your address
+final String SERVER_URL = "http://10.100.102.16/";
+
 Future<void> main() async {
   final cameras = await availableCameras();
   final first_camera = cameras.first;
@@ -84,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
           new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
       var length = await imageFile.length();
 
-      var uri = Uri.parse("http://10.100.102.16/");
+      var uri = Uri.parse(SERVER_URL);
 
       var request = new http.MultipartRequest("POST", uri);
 
