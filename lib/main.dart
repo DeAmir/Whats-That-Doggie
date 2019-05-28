@@ -9,6 +9,8 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'CategoryInfo.dart';
+
 Future<void> main() async {
   final cameras = await availableCameras();
   final first_camera = cameras.first;
@@ -33,6 +35,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   CameraController _controller;
   Future<void> _initializeControllerFuture;
+
+  bool loading = false;
 
   @override
   void initState() {
@@ -107,27 +111,50 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
-  void moveScreen(category) {}
+  String cleanCategory(String category) {
+    String cat = category;
+    String abc = "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < category.length; i++) {
+      String cchar = category[i];
+
+      if (cchar == "_") {
+        cat = cat.replaceFirst("_", ' ');
+      } else if (!abc.contains(cchar) && cchar != '_') {
+        cat = cat.replaceAll(cchar, '');
+      }
+    }
+    return cat;
+  }
+
+  void moveScreen(category, cont) {
+    category = cleanCategory(category);
+    Navigator.push(
+        cont,
+        MaterialPageRoute(
+            builder: (cont) => CategoryInfo(
+                  category: category,
+                )));
+  }
 
   Future<bool> validateImage(path, BuildContext cont) {
     File img = File.fromUri(Uri(path: path));
     var completer = Completer<bool>();
-    
-    
+
     Widget okButton = FlatButton(
         onPressed: () {
           Navigator.pop(cont);
           completer.complete(true);
         },
         child: Text('Ok'));
-    
+
     Widget cancelButton = FlatButton(
         onPressed: () {
           Navigator.pop(cont);
           completer.complete(false);
         },
         child: Text("Retake image"));
-    
+
     AlertDialog alertDialog = AlertDialog(
       title: Text("Is the image ok?"),
       content: Image.file(img),
@@ -143,21 +170,30 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
+  void showLoader(bool show){
+    setState(() {
+      loading = show;
+    });
+  }
+
   void doWork(BuildContext context) async {
     String path = await takePicture();
     if (path != null) {
       bool imageOk = await validateImage(path, context);
       if (imageOk) {
-        showToast("Detecting picture...");
+        showLoader(true);
         String category = await predictPicture(path);
-        showToast(category);
         if (category == '') {
-          print("Error with category prediction");
+          showToast(
+              "Error with category prediction. Maybe internet connectivity issue.");
+        } else {
+          moveScreen(category, context);
         }
       }
     } else {
       print("Path is null at doWork");
     }
+    showLoader(false);
   }
 
   @override
@@ -175,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done && loading==false) {
             // when ok display feed with initialized controller
             print("Starting camera preview...");
             return CameraPreview(_controller);
