@@ -13,7 +13,7 @@ MODEL_PATH = "python_model.pth"
 
 
 def get_model():
-    return load_learner('export.pkl')
+    return load_learner('')
 
 
 model = get_model()

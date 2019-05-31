@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/services.dart';
 
 import 'CategoryInfo.dart';
 
@@ -46,6 +47,11 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _controller = CameraController(widget.camera, ResolutionPreset.medium);
     _initializeControllerFuture = _controller.initialize();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.portraitUp
+    ]);
   }
 
   void showToast(msg) {
@@ -108,11 +114,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
-  void moveScreen(category, cont, path) {
+  void moveScreen(category_bars, cont, path) {
+    print("moving with categorybars=${category_bars}");
     Navigator.push(
         cont,
         MaterialPageRoute(
-            builder: (cont) => CategoryInfo(category: category, path: path)));
+            builder: (cont) => CategoryInfo(
+                  path: path,
+                  categoryBars: category_bars,
+                )));
   }
 
   Future<bool> validateImage(path, BuildContext cont) {
@@ -133,9 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         child: Text("Retake image"));
 
+    final image = Image.file(img);
+
     AlertDialog alertDialog = AlertDialog(
       title: Text("Is the image ok?"),
-      content: Image.file(img),
+      content: image,
       actions: <Widget>[okButton, cancelButton],
     );
 
@@ -154,18 +166,65 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  List<int> three_maxes_indexes(List<double> source) {
+    int top3 = 0, top2 = 0, top1 = 0;
+    for (int idx = 0; idx < source.length; idx++) {
+      if (source[idx] > source[top1]) {
+        top3 = top2;
+        top2 = top1;
+        top1 = idx;
+
+      } else if (source[idx] > source[top2]) {
+        top3 = top2;
+        top2 = idx;
+      } else if (source[idx] > source[top3]) {
+        top3 = idx;
+      }
+    }
+
+    return [top1, top2, top3];
+  }
+
+  List<CategoryBar> format_categories(String unformatted) {
+    var arr = unformatted.split(",");
+    var formatted_arr = [for (String i in arr) double.parse(i) * 100]; // times 100 for viewing on the chart more clearly
+    var maxes = three_maxes_indexes(formatted_arr);
+    print("maxes: ${maxes}");
+
+    List<CategoryBar> ret = List();
+
+    for (int idx = 0; idx < maxes.length; idx++) {
+      int real_index = maxes[idx];
+      String label = LABELS[real_index];
+      double prob = formatted_arr[real_index];
+
+      Color c = Colors.red;
+      if (idx == 0) {
+        c = Colors.blue;
+      }
+
+      var add = CategoryBar(label, prob, c);
+      print("adding ${add}");
+      ret.add(add);
+    }
+    print("returning: ${ret}");
+
+    return ret;
+  }
+
   void doWork(BuildContext context) async {
     String path = await takePicture();
     if (path != null) {
       bool imageOk = await validateImage(path, context);
       if (imageOk) {
         showLoader(true);
-        String category = await predictPicture(path);
-        if (category == '') {
+        String category_unformatted = await predictPicture(path);
+        List<CategoryBar> formatted = format_categories(category_unformatted);
+        if (category_unformatted == '') {
           showToast(
               "Error with category prediction. Maybe internet connectivity issue.");
         } else {
-          moveScreen(category, context, path);
+          moveScreen(formatted, context, path);
         }
       }
     } else {
