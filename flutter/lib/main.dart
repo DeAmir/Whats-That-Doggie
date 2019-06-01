@@ -84,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void moveScreen(category_bars, cont, path) {
-    print("moving with categorybars=${category_bars}");
     Navigator.push(
         cont,
         MaterialPageRoute(
@@ -100,54 +99,41 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  List<int> three_maxes_indexes(List<double> source) {
-    int top3 = 0, top2 = 0, top1 = 0;
-    for (int idx = 0; idx < source.length; idx++) {
-      if (source[idx] > source[top1]) {
-        top3 = top2;
-        top2 = top1;
-        top1 = idx;
-      } else if (source[idx] > source[top2]) {
-        top3 = top2;
-        top2 = idx;
-      } else if (source[idx] > source[top3]) {
-        top3 = idx;
-      }
+  List<int> range(lower_than) {
+    var ret = List<int>();
+    for (var num = 0; num < lower_than; num++) {
+      ret.add(num);
     }
-
-    return [top1, top2, top3];
+    return ret;
   }
 
   List<CategoryBar> format_categories(String unformatted) {
-    var arr = unformatted.split(",");
-    var formatted_arr = [
-      for (String i in arr) double.parse(i) * 100
-    ]; // times 100 for viewing on the chart more clearly
-    var maxes = three_maxes_indexes(formatted_arr);
-    print("maxes: ${maxes}");
+    var list = unformatted.split(",");
+    var labels = [];
+    var probs = [];
 
-    List<CategoryBar> ret = List();
-
-    for (int idx = 0; idx < maxes.length; idx++) {
-      int real_index = maxes[idx];
-      String label = LABELS[real_index];
-      double prob = formatted_arr[real_index];
-
-      Color c = Colors.red;
-      if (idx == 0) {
-        c = Colors.blue;
+    var idx = 0;
+    while (idx < list.length) {
+      if (idx % 2 == 0) {
+        labels.add(list[idx]);
+      } else {
+        probs.add(double.parse(list[idx]));
       }
-
-      var add = CategoryBar(label, prob, c);
-      print("adding ${add}");
-      ret.add(add);
+      idx++;
     }
-    print("returning: ${ret}");
+
+    final ret = [
+      for (var i in range(probs.length))
+        CategoryBar(labels[i], probs[i], Colors.lime)
+    ];
+
+    ret[0].setColor(Colors.green);
 
     return ret;
   }
 
   void doWork(BuildContext context, bool take_camera) async {
+    showLoader(true);
     String path;
     if (take_camera) {
       File a = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -158,9 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
       path = a.path;
     }
     if (path != null) {
-      showLoader(true);
       String category_unformatted = await predictPicture(path);
+      print("unformatted: ${category_unformatted}");
       List<CategoryBar> formatted = format_categories(category_unformatted);
+      print("formatted: ${formatted}");
       if (category_unformatted == '') {
         showToast(
             "Error with category prediction. Maybe internet connectivity issue.");
@@ -180,7 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text("Dog Breed Detector"),
       ),
       body: Center(
-        child: Row(
+        child: (loading) ?
+            CircularProgressIndicator()
+            : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -193,7 +182,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       "Take image",
                       style: TextStyle(fontSize: 20),
                     ),
-                    Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 10),),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    ),
                     Icon(
                       Icons.camera,
                       size: 40,

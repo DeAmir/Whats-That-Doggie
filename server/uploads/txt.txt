@@ -1,2 +1,2 @@
 Uploads folder.
-Where images will temporarly be stored.
+Where images will be stored, processed, and immediately deleted.

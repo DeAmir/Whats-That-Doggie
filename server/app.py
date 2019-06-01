@@ -1,7 +1,7 @@
 from flask import *
+
 from werkzeug.utils import secure_filename
 from fastai.vision import *
-import string
 
 NO_FILE_STR = "No file uploaded."
 
@@ -18,10 +18,20 @@ def get_model():
 
 model = get_model()
 
-
 def predict_dog(path):
-    category = model.predict(open_image(path))[0]
-    return str(category)
+    category, class_idx, probs = model.predict(open_image(path))
+
+    enum = [i for i in enumerate(probs)]
+    sort = sorted(enum, key=lambda i: i[1]) # take a pair of (index,value) and sort it by value (at the first index)
+    ret = [(LABELS[i[0]],i[1].item()) for i in sort]
+    ret = ret[-3:] # get top three
+    ret = ret[::-1] # reverse them, so the biggest is the first
+    ret = str(ret)
+    ret = ret[1:-1] # remove the [] from the string
+    ret = ret.replace("'","").replace(", ",",").replace("(","").replace(")","") # remove other unwanted characters
+    # the final output format:
+    # label1,probability1,label2,probability2
+    return ret
 
 
 def file_allowed(file):
@@ -36,11 +46,16 @@ def homepage():
 def clean_category(cat):
     ret = cat
     sl = cat.split("-")
-    if len(sl) == 2:
-        ret = sl[1]
+    if len(sl) >= 2:
+        ret = sl[-1]
         ret = ret.replace("_", " ")
 
     return ret
+
+
+LABELS = [clean_category(i) for i in model.data.classes]
+
+print(LABELS)
 @app.route('/', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -56,10 +71,10 @@ def upload_file():
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         print(filename + " uploaded successfully.")
         filepath = UPLOAD_FOLDER + "/" + filename
-        prediction = predict_dog(filepath)
-        prediction = clean_category(prediction)
+        probs = str(predict_dog(filepath))
         os.remove(filepath)
-        return prediction
+
+        return probs
     else:
         print("file not permitted")
         return "File extension is not permitted."
