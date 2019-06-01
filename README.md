@@ -8,8 +8,8 @@ The repo is seperated into three parts:
 
 ## The notebook
 In order to create the model, I used the [fastai](https://github.com/fastai/fastai) library and google colab.<br>
-You can run the notebook as it is - but you have to change you kaggle api username and password.<br>
-After the model exported, I moved the exported file (export.pkl) to the server directory.<br>
+You can run the notebook as it is - but you have to change you kaggle api username and password in the appropriate field.<br>
+After the model was exported, I moved the exported file (export.pkl) to the <i>server<i> directory.<br>
 
 ## The server
 The server side python script, implemented with flask.<br>
@@ -21,9 +21,8 @@ When doing a post request to the server (that includes a multi-part image), it w
 The app is a cross platform, made with [flutter](https://github.com/flutter/flutter) and dart.<br>
 It will not work properly on emulators. <br>
 The device running the app must be on the same network as the server in order for it to connect to it. <br>
-The server adress must be changed inside the app at /lib/main.dart at the SERVER_URL constant.
+The server adress must be changed inside the app at /lib/main.dart at the <i>SERVER_URL<i> constant.
 
 ## To do
-* Do more refactoring
-* Add more comments
+* Do more code refactoring (comments, etc.)
 * Improve the ui of the web app, maybe redesign with a react
