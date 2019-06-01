@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'CategoryInfo.dart';
 
@@ -37,51 +38,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  CameraController _controller;
-  Future<void> _initializeControllerFuture;
-
   bool loading = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = CameraController(widget.camera, ResolutionPreset.medium);
-    _initializeControllerFuture = _controller.initialize();
 
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.portraitUp
-    ]);
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   }
 
   void showToast(msg) {
     Fluttertoast.showToast(
         msg: msg, timeInSecForIos: 5, gravity: ToastGravity.CENTER);
-  }
-
-  Future<String> takePicture() async {
-    print("taking picture...");
-    var completer = Completer<String>();
-
-    try {
-      // make sure the controller is initialized
-      await _initializeControllerFuture;
-
-      // get path to store the image
-      // get temp directory, and add the name currenttime.png
-      final path =
-          join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
-
-      await _controller.takePicture(path);
-      print("Picture taken and saved at ${path}");
-
-      completer.complete(path);
-    } catch (e) {
-      print("Error: ${e}");
-      completer.complete('');
-    }
-
-    return completer.future;
   }
 
   Future<String> predictPicture(path) async {
@@ -125,41 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 )));
   }
 
-  Future<bool> validateImage(path, BuildContext cont) {
-    File img = File.fromUri(Uri(path: path));
-    var completer = Completer<bool>();
-
-    Widget okButton = FlatButton(
-        onPressed: () {
-          Navigator.pop(cont);
-          completer.complete(true);
-        },
-        child: Text('Ok'));
-
-    Widget cancelButton = FlatButton(
-        onPressed: () {
-          Navigator.pop(cont);
-          completer.complete(false);
-        },
-        child: Text("Retake image"));
-
-    final image = Image.file(img);
-
-    AlertDialog alertDialog = AlertDialog(
-      title: Text("Is the image ok?"),
-      content: image,
-      actions: <Widget>[okButton, cancelButton],
-    );
-
-    showDialog(
-        context: cont,
-        builder: (BuildContext context) {
-          return alertDialog;
-        });
-
-    return completer.future;
-  }
-
   void showLoader(bool show) {
     setState(() {
       loading = show;
@@ -173,7 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
         top3 = top2;
         top2 = top1;
         top1 = idx;
-
       } else if (source[idx] > source[top2]) {
         top3 = top2;
         top2 = idx;
@@ -187,7 +120,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<CategoryBar> format_categories(String unformatted) {
     var arr = unformatted.split(",");
-    var formatted_arr = [for (String i in arr) double.parse(i) * 100]; // times 100 for viewing on the chart more clearly
+    var formatted_arr = [
+      for (String i in arr) double.parse(i) * 100
+    ]; // times 100 for viewing on the chart more clearly
     var maxes = three_maxes_indexes(formatted_arr);
     print("maxes: ${maxes}");
 
@@ -212,20 +147,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return ret;
   }
 
-  void doWork(BuildContext context) async {
-    String path = await takePicture();
+  void doWork(BuildContext context, bool take_camera) async {
+    String path;
+    if (take_camera) {
+      File a = await ImagePicker.pickImage(source: ImageSource.camera);
+      path = a.path;
+    } else {
+      // take from gallery
+      File a = await ImagePicker.pickImage(source: ImageSource.gallery);
+      path = a.path;
+    }
     if (path != null) {
-      bool imageOk = await validateImage(path, context);
-      if (imageOk) {
-        showLoader(true);
-        String category_unformatted = await predictPicture(path);
-        List<CategoryBar> formatted = format_categories(category_unformatted);
-        if (category_unformatted == '') {
-          showToast(
-              "Error with category prediction. Maybe internet connectivity issue.");
-        } else {
-          moveScreen(formatted, context, path);
-        }
+      showLoader(true);
+      String category_unformatted = await predictPicture(path);
+      List<CategoryBar> formatted = format_categories(category_unformatted);
+      if (category_unformatted == '') {
+        showToast(
+            "Error with category prediction. Maybe internet connectivity issue.");
+      } else {
+        moveScreen(formatted, context, path);
       }
     } else {
       print("Path is null at doWork");
@@ -234,37 +174,59 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Dog Breed Detector"),
       ),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              loading == false) {
-            // when ok display feed with initialized controller
-            print("Starting camera preview...");
-            return CameraPreview(_controller);
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (loading == false) {
-            doWork(context);
-          }
-        },
-        child: Icon(Icons.camera),
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              child: FlatButton(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      "Take image",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 10),),
+                    Icon(
+                      Icons.camera,
+                      size: 40,
+                    )
+                  ],
+                ),
+                onPressed: () {
+                  doWork(context, true);
+                },
+              ),
+              height: 100,
+            ),
+            SizedBox(
+              height: 100,
+              child: FlatButton(
+                onPressed: () {
+                  doWork(context, false);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text("Import image from gallery",
+                        style: TextStyle(fontSize: 20)),
+                    Icon(
+                      Icons.file_upload,
+                      size: 40,
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
