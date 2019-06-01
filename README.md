@@ -27,4 +27,3 @@ The server adress must be changed inside the app at /lib/main.dart at the SERVER
 * Do more refactoring
 * Add more comments
 * Improve the ui of the web app, maybe redesign with a react
-* Add an option of importing a photo from the device instead of only taking it inside the app
