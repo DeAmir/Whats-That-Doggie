@@ -73,7 +73,10 @@ def upload_file():
         probs = str(predict_dog(filepath))
         os.remove(filepath)
 
-        return probs
+        resp = make_response(render_template("probs.html"))
+        print(probs)
+        resp.set_cookie('probs', probs)
+        return resp
     else:
         print("file not permitted")
         return "File extension is not permitted."

@@ -1,0 +1,67 @@
+<html>
+<body>
+<canvas id="bar-chart"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<head>
+    <title>View predictions</title>
+</head>
+<script>
+    function getCookie(cookieName) {
+        console.log("getting cookie")
+        var name = cookieName + "=";
+        var allCookieArray = document.cookie.split(';');
+        for (var i = 0; i < allCookieArray.length; i++) {
+            var temp = allCookieArray[i].trim();
+            if (temp.indexOf(name) == 0)
+                return temp.substring(name.length, temp.length);
+        }
+        return "";
+    }
+
+    var probs = getCookie("probs");
+
+    var num_of_probs = 3;
+    var num_054 = num_of_probs * 2; // each prob has a label
+
+    for (var i = 0; i < num_054; i += 1) {
+        probs = probs.replace("054", "");
+    }
+    var splitted_comma = probs.split("\\"); // commas are backslashes here
+    splitted_comma[0] = splitted_comma[0].replace('"','');
+
+    var labels = [];
+    var values = [];
+
+    for (var idx = 0; idx < splitted_comma.length; idx++) {
+        if (idx % 2 == 0) {
+            labels.push(splitted_comma[idx]);
+        } else {
+            values.push(parseFloat(splitted_comma[idx]) * 100); // times 100 to get percentage from total 100%
+        }
+    }
+
+    new Chart(document.getElementById("bar-chart"), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Level of certainty for this label",
+                    backgroundColor: ["#78cd72", "#a24a1b", "#a29c5a"],
+                    data: values
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: {display: false},
+            title: {
+                display: true,
+                text: 'Levels of certainty for each of the top 3 predictions'
+            },
+        }
+    });
+</script>
+</body>
+
+</html>
