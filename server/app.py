@@ -55,7 +55,6 @@ def clean_category(cat):
 
 LABELS = [clean_category(i) for i in model.data.classes]
 
-print(LABELS)
 @app.route('/', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:

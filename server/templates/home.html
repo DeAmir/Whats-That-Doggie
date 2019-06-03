@@ -2,13 +2,62 @@
 <html>
 <head>
     <title>Dog Breed Detector</title>
+<style>
+.button {
+  width: 100%;
+  margin: 0;
+  color: #fff;
+  background: #1FB264;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  border-bottom: 4px solid #15824B;
+  transition: all .2s ease;
+  outline: none;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.button:hover {
+  background: #1AA059;
+  color: #ffffff;
+  transition: all .2s ease;
+  cursor: pointer;
+}
+.button-choose {
+  width: 100%;
+  margin: 0;
+  color: #fff;
+  background: rgb(224, 149, 36);
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  border-bottom: 4px solid rgb(168, 114, 32);
+  transition: all .2s ease;
+  outline: none;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.button-choose:hover {
+  background: rgb(168, 114, 32);
+  color: #ffffff;
+  transition: all .2s ease;
+  cursor: pointer;
+}
+.title {
+  font-family: arial;
+  text-align: center;
+   text-align-last: center;
+   font-size: 30px
+   }
+</style>
 </head>
 <body>
-<b>Choose a file to upload</b>
+<p class="title">Choose a file to upload</p>
 <form method="post" action="/" enctype="multipart/form-data">
 
-    <input type="file" name="file" multiple="true" required>
-    <input type="submit" value="Upload">
+    <input type="file" name="file" multiple="true" class="button-choose" required>
+    <input type="submit" value="Upload" class="button">
 
 </form>
 </body>

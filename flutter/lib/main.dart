@@ -18,7 +18,17 @@ final String SERVER_URL = "http://10.100.102.16/";
 
 Future<void> main() async {
   final cameras = await availableCameras();
-  final first_camera = cameras.first;
+  var first_camera;
+  if (cameras.isNotEmpty) {
+    if (Platform.isIOS) {
+      print("Real device detected. Camera usage is supported.");
+    }
+    first_camera = cameras.first;
+  } else {
+    if (Platform.isIOS) {
+      print("Running on emulator. Camera functionality won't work.");
+    }
+  }
 
   runApp(MaterialApp(
       home: MyHomePage(
@@ -39,6 +49,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool loading = false;
+  double height, width;
 
   @override
   void initState() {
@@ -162,61 +173,71 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Dog Breed Detector"),
       ),
       body: Center(
-        child: (loading) ?
-            CircularProgressIndicator()
-            : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              child: FlatButton(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: (loading)
+              ? CircularProgressIndicator()
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(
-                      "Take image",
-                      style: TextStyle(fontSize: 20),
+                    SizedBox(
+                      height: 100,
+                      child: FlatButton(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text("Take image",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                )),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            ),
+                            Icon(
+                              Icons.camera,
+                              size: 40,
+                            )
+                          ],
+                        ),
+                        onPressed: () {
+                          doWork(context, true);
+                        },
+                      ),
+//                    width: width,
                     ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    ),
-                    Icon(
-                      Icons.camera,
-                      size: 40,
+                    SizedBox(
+                      height: 100,
+                      child: FlatButton(
+                        onPressed: () {
+                          doWork(context, false);
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text("Import image from gallery",
+                                style: TextStyle(fontSize: 20)),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            ),
+                            Icon(
+                              Icons.file_upload,
+                              size: 40,
+                            )
+                          ],
+                        ),
+                      ),
                     )
                   ],
                 ),
-                onPressed: () {
-                  doWork(context, true);
-                },
-              ),
-              height: 100,
-            ),
-            SizedBox(
-              height: 100,
-              child: FlatButton(
-                onPressed: () {
-                  doWork(context, false);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text("Import image from gallery",
-                        style: TextStyle(fontSize: 20)),
-                    Icon(
-                      Icons.file_upload,
-                      size: 40,
-                    )
-                  ],
-                ),
-              ),
-            )
-          ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
