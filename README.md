@@ -28,4 +28,3 @@ The server adress must be changed inside the app at /lib/main.dart at the <i>SER
 
 ## To do
 * Do more code refactoring (comments, etc.)
-* Improve the ui of the web app, maybe redesign with a react
