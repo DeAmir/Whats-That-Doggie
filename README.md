@@ -7,6 +7,8 @@ The repo is seperated into three parts:
 * The server
 * The flutter app <br>
 
+<b>Each part is a seperate project, so when you experiment with them - make sure to isolate them in different folders.<b>
+
 ## The notebook
 In order to create the model, I used the [fastai](https://github.com/fastai/fastai) library and google colab.<br>
 You can run the notebook as it is - but you have to change you kaggle api username and password in the appropriate field.<br>
@@ -26,4 +28,3 @@ The server adress must be changed inside the app at /lib/main.dart at the <i>SER
 
 ## To do
 * Do more code refactoring (comments, etc.)
-* Improve the ui of the web app, maybe redesign with a react
