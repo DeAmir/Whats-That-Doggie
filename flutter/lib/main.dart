@@ -83,10 +83,16 @@ class _MyHomePageState extends State<MyHomePage> {
       request.files.add(multipartFile);
 
       var response = await request.send();
+      print(response.headers);
 
-      response.stream.transform(utf8.decoder).listen((value) {
-        completer.complete(value.toString());
-      });
+      var cook = response.headers['set-cookie'];
+      var ret = cook.split(";")[0];
+      ret = ret.split("=")[1];
+      ret = ret.replaceAll('"', "");
+      ret = ret.replaceAll("054", "");
+
+      print("returning ${ret}");
+      completer.complete(ret);
     } catch (e) {
       print("Error in predictPicture: ${e}");
       completer.complete('');
@@ -119,7 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<CategoryBar> format_categories(String unformatted) {
-    var list = unformatted.split(",");
+    print("in format cat: ${unformatted}");
+    var list = unformatted.split("\\");
     var labels = [];
     var probs = [];
 
