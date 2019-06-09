@@ -7,7 +7,8 @@ The repo is seperated into three parts:
 * The server
 * The flutter app <br>
 
-<b>Each part is a seperate project, so when you experiment with them - make sure to isolate them in different folders.<b>
+<b>Each part is a seperate project, so when you when experiment with them - make sure to isolate them in different folders.<b>
+<br>This repo contains the code for my blog series on Medium, which could be found [here](https://medium.com/@de.amir16/practical-deep-learning-project-for-beginners-part-0-b2c63d310a3a).
 
 ## The notebook
 In order to create the model, I used the [fastai](https://github.com/fastai/fastai) library and google colab.<br>
