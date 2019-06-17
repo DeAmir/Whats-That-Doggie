@@ -1,9 +1,11 @@
 <html>
 <body>
-<canvas id="bar-chart"></canvas>
+<canvas id="bar-chart" style="max-width: 100%;max-height: 50%; margin-bottom: 30px"></canvas>
+<center><i style="font-size: 17px">Hover the mouse over the a category of you choosing to see it's probability.</i></center>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 <head>
-    <title>View predictions</title>
+    <title>Loading...</title>
+
 </head>
 <script>
     function getCookie(cookieName) {
@@ -40,7 +42,10 @@
         }
     }
 
-    new Chart(document.getElementById("bar-chart"), {
+    document.title = "Predicted: " + labels[0];
+
+    var ctx = document.getElementById('bar-chart').getContext('2d');
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -57,7 +62,8 @@
             legend: {display: false},
             title: {
                 display: true,
-                text: 'Levels of certainty for each of the top 3 predictions'
+                text: 'Levels of certainty for each of the top 3 predictions',
+                fontSize: 30
             },
         }
     });
