@@ -1,5 +1,6 @@
 # Whats' That Doggie?
-![Alt Text](https://github.com/LoliamShely/Whats-That-Doggie/blob/master/simulator_detector.gif)<br><br>
+![The Flutter app](https://github.com/LoliamShely/Whats-That-Doggie/blob/master/simulator_detector.gif)<br><br>
+![The Web app](https://github.com/LoliamShely/Whats-That-Doggie/blob/master/webapp_demo.gif)<br><br>
 A deep learning based app, that can calssify a breed of a dog inside a picture. <br>
 The model can predict a dogs breed from 120 different dog breeds.
 The repo is seperated into three parts:
